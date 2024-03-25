@@ -28,5 +28,5 @@ typing_extensions==4.10.0
 tzdata==2024.1
 urllib3==2.2.1
 Werkzeug==3.0.1
-zipp==3.18.1
-gunicorn==21.10.0
+zipp==3.18.1005
+gunicorn==21.1.0
