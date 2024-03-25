@@ -1,5 +1,6 @@
 import pandas as pd
 import plotly.express as px
+from worldmap import df_daily
 
 
 def preprocess_global_data(df):
@@ -11,7 +12,7 @@ def preprocess_global_data(df):
     return grouped_df
 
 def preprocess_country_data(df):
-    return df.groupby(['tweet_date', 'country/region']).mean().reset_index().set_index('tweet_date')
+    return df_daily.set_index('tweet_date')
     
 
 df = pd.read_csv('processedData/sampled_cleaned_covid_twitter_data.csv', usecols=['tweet_date', 'fear_intensity', 'anger_intensity', 'happiness_intensity', 'sadness_intensity', 'country/region'])
