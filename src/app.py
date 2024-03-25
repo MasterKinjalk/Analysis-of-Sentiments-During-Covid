@@ -85,7 +85,6 @@ from dash import callback_context
 )
 def update_maps_and_lines(selected_date_index, fear_clickData, anger_clickData, happiness_clickData, sadness_clickData, n_clicks, button_disabled):
     selected_date = dates[selected_date_index]
-
     # Identify which input triggered the callback
     ctx = callback_context
     triggered_id = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else None

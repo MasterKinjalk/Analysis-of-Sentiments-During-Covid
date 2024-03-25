@@ -79,7 +79,7 @@ def create_choropleth_map(date, emotion):
     ))
     
     fig.update_layout(
-        title_text=f'{emotion.replace("_", " ").capitalize()} for {str(date)}',
+        title_text=f'{emotion.replace("_", " ").capitalize()} for {date.date()}',
         geo=dict(
             showframe=True,
             showcoastlines=False,
