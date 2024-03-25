@@ -15,10 +15,8 @@ def preprocess_country_data(df):
     return df_daily.set_index('tweet_date')
     
 
-df = pd.read_csv('processedData/sampled_cleaned_covid_twitter_data.csv', usecols=['tweet_date', 'fear_intensity', 'anger_intensity', 'happiness_intensity', 'sadness_intensity', 'country/region'])
-
-global_df = preprocess_global_data(df)
-country_df = preprocess_country_data(df)
+global_df = preprocess_global_data(df_daily)
+country_df = preprocess_country_data(df_daily)
 
 def plot_global_emotions(selected_date):
 
