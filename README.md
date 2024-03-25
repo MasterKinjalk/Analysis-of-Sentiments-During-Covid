@@ -10,18 +10,13 @@ This project utilizes a dataset located in the `/processedData` folder. The data
 - `sadness_intensity`: Numeric value representing the intensity of sadness expressed in the tweet.
 - `tweet_date`: The date the tweet was posted.
 
-## Visualization with Plotly and Dash
+## Project in Action
 
-The project leverages Plotly to create chloropleth maps and Dash to build an interactive data app. It consists of two main Python scripts:
+![ChangingWorldEmotions](play.gif)
 
-1. **worldMap.py**
-   - Preprocesses the data for visualization.
-   - Creates the chloropleth maps to represent the data geographically.
+## Project Deployment 
 
-2. **dashApp.py**
-   - Initializes and runs the Dash application.
-   - Constructs web components and integrates a slider for dynamic user interaction.
-   - Updates the visualizations based on user interactions.
+Click here to play with our Visulization: [CLick Here](https://covidvizadv.onrender.com/)
 
 ## Getting Started
 
