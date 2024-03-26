@@ -2,11 +2,9 @@ import pandas as pd
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 import numpy as np
-# ray.init(num_cpus=4, ignore_reinit_error=True)
 
 # Read the CSV file and drop columns within the function
-df = pd.read_csv('grouped_sampled_cleaned_covid_twitter_data.csv')
-
+df = pd.read_csv('daily_averaged_covid_twitter_data.csv')
 # Convert timestamps to datetime, extract date, and sort
 df['tweet_date'] = pd.to_datetime(df['tweet_date'], format='%Y-%m-%d')
 df.sort_values('tweet_date', inplace=True)
@@ -14,7 +12,7 @@ df.sort_values('tweet_date', inplace=True)
 # # Aggregate data by date and country/region to get daily averages
 # df_daily = df.groupby(['tweet_date', 'country/region']).mean().reset_index()
 
-df_daily = df 
+df_daily = df.drop(columns=['valence_intensity'])
 # Unique dates for the slider
 dates = df_daily['tweet_date'].unique()
 

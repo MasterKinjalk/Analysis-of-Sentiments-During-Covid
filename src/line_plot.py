@@ -23,7 +23,7 @@ def plot_global_emotions(selected_date):
     title = 'Global Emotional Intensity over Time'
     labels = {'tweet_date': 'Date', 'anger_intensity': 'Anger Intensity', 'fear_intensity': 'Fear Intensity', 'happiness_intensity': 'Happiness Intensity', 'sadness_intensity': 'Sadness Intensity'}
     fig = px.line(global_df, x=global_df.index, y=global_df.columns, title=title, labels=labels, render_mode='svg')
-    fig.add_scatter(x=pd.to_datetime([selected_date, selected_date, selected_date, selected_date]), y=global_df.loc[pd.to_datetime(selected_date)], name='Current Day', mode='lines+markers',marker=dict(size=10), )
+    fig.add_scatter(x=pd.to_datetime([selected_date, selected_date, selected_date, selected_date]), y=global_df.loc[pd.to_datetime(selected_date)], name='Current Day', mode='lines+markers',marker=dict(size=10))
     fig.update_layout(
     paper_bgcolor='rgba(0,0,0,0)',
     plot_bgcolor='rgba(0,0,0,0)',
@@ -54,7 +54,7 @@ def plot_country_emotions(selected_date, country):
 
     labels = {'tweet_date': 'Date', 'anger_intensity': 'Anger Intensity', 'fear_intensity': 'Fear Intensity', 'happiness_intensity': 'Happiness Intensity', 'sadness_intensity': 'Sadness Intensity'}
     fig = px.line(selected_country_df, x=selected_country_df.index, y=selected_country_df.columns, title=title, labels=labels, render_mode='svg', line_shape='spline')
-    fig.add_scatter(x=pd.to_datetime([selected_date, selected_date, selected_date, selected_date]), y=selected_country_df.loc[pd.to_datetime(selected_date)], name='Current Day', mode='lines+markers',marker=dict(size=10), )
+    fig.add_scatter(x=pd.to_datetime([selected_date, selected_date, selected_date, selected_date]), y=selected_country_df.loc[pd.to_datetime(selected_date)], name='Current Day', mode='lines+markers',marker=dict(size=10))
     fig.update_layout(clickmode='event+select')
     fig.update_layout(
     paper_bgcolor='rgba(0,0,0,0)',
