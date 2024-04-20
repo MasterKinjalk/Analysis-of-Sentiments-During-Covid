@@ -18,6 +18,25 @@ def preprocess_country_data(df):
 global_df = preprocess_global_data(df_daily)
 country_df = preprocess_country_data(df_daily)
 
+important_dates_dict = {'2020-02-11': 'WHO names Covid-19','2020-03-11': 'WHO declares pandemic', '2020-04-02': 'Worldwide cases at 1 million', '2020-04-13': 'US ceases WHO funding','2020-04-17': 'First Moderna trials', '2020-04-24': 'ACT-A announced', '2020-10-02': 'Trump infected'}
+
+def add_annotations(fig):
+    for i, date in enumerate(important_dates_dict):
+        curr_date_row = global_df.loc[date]
+        fear = curr_date_row['fear_intensity']
+        angle = 20
+        y_offset = -50
+        if (i % 2 == 0):
+            y_offset=75
+            angle=-20
+        fig.add_annotation(x=date, y=fear,
+            ayref="pixel",
+            text=important_dates_dict[date],
+            showarrow=True,
+            arrowhead=1,
+            ay=y_offset,
+            textangle=angle)
+
 def plot_global_emotions(selected_date):
 
     title = 'Global Emotional Intensity over Time'
@@ -52,17 +71,9 @@ def plot_global_emotions(selected_date):
     #         text="Text annotation with arrow",
     #         showarrow=True,
     #         arrowhead=1)
+    fig.update_xaxes(ticklabelmode="period")
 
-    important_dates_dict = {'2020-02-11': 'WHO names Covid-19','2020-03-11': 'WHO declares pandemic', '2020-04-24': 'ACT-A announced', '2020-01-17': 'First Moderna trials', '2020-09-23': 'New strain of Covid', '2020-10-02': 'Trump infected'}
-    for date in important_dates_dict:
-        curr_date_row = global_df.loc[date]
-        fear = curr_date_row['fear_intensity']
-        fig.add_annotation(x=date, y=fear,
-            text=important_dates_dict[date],
-            showarrow=True,
-            arrowhead=1,
-            ay=-50)
-
+    add_annotations(fig)
     return fig
 
 # def plot_global_emotions(selected_date):
@@ -93,6 +104,13 @@ def plot_country_emotions(selected_date, country):
     paper_bgcolor='rgba(0,0,0,0)',
     plot_bgcolor='rgba(0,0,0,0)',
     )
+
+    fig.update_xaxes(ticklabelmode="period")
+    
+    add_annotations(fig)
+
     return fig
+
+
 
 #plot_global_emotions(pd.to_datetime('2020-01-27')).show()
