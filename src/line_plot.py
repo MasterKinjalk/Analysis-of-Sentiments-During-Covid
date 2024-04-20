@@ -30,6 +30,39 @@ def plot_global_emotions(selected_date):
     )
     fig.update_layout(clickmode='event+select')
     fig.update_layout(transition_duration=500)
+
+    # Timeline:
+    # Jan 10: Novel coronavirus announced by WHO
+    # March 11, 2020
+    #After more than 118,000 cases in 114 countries and 4,291 deaths, the WHO declares COVID-19 a pandemic.
+    #
+    #July 27 — Moderna Vaccine Begins Phase 3 Trial,
+    #
+    #September 8 — AstraZeneca Halts Phase 3 Vaccine Trial
+    #
+    #September 14 — Pfizer, BioNTech Expand Phase 3 Trial
+    #
+    #September 21 — Johnson & Johnson Begins Phase 3 Vaccine Trial
+    #
+    #September 23 — A New, More Contagious Strain of COVID-19 Is Discovered
+
+    #October 2 - Trump infected
+
+    # fig.add_annotation(x=2, y=5,
+    #         text="Text annotation with arrow",
+    #         showarrow=True,
+    #         arrowhead=1)
+
+    important_dates_dict = {'2020-02-11': 'WHO names Covid-19','2020-03-11': 'WHO declares pandemic', '2020-04-24': 'ACT-A announced', '2020-01-17': 'First Moderna trials', '2020-09-23': 'New strain of Covid', '2020-10-02': 'Trump infected'}
+    for date in important_dates_dict:
+        curr_date_row = global_df.loc[date]
+        fear = curr_date_row['fear_intensity']
+        fig.add_annotation(x=date, y=fear,
+            text=important_dates_dict[date],
+            showarrow=True,
+            arrowhead=1,
+            ay=-50)
+
     return fig
 
 # def plot_global_emotions(selected_date):
