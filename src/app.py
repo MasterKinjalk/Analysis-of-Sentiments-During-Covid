@@ -4,10 +4,11 @@ import plotly.graph_objects as go
 from worldmap import create_choropleth_map, dates
 import dash
 from playback_slider_aio import PlaybackSliderAIO
-from line_plot import plot_global_emotions, plot_country_emotions
+from line_plot import plot_global_emotions, plot_country_emotions, important_dates_dict
 import dash_bootstrap_components as dbc
 import calendar
 import json
+import pandas as pd
 
 
 app = dash.Dash(__name__, external_stylesheets=[
@@ -22,11 +23,43 @@ server = app.server
 # Create marks for the slider with actual dates in the tooltip
 #date_marks = {i: {'label': '', 'style': {'display': 'none'}, 'tooltip': date} for i, date in enumerate(dates)}
 date_marks = {}
+
+#important_dates_dict = {'January10': 'Novel coronavirus announced', 'March11': 'WHO announces Pandemic', 'September23': 'New strain of Covid', 'October2': 'Trump infected'}
+#important_dates_dict = {'2020-02-11': 'WHO names Covid-19','2020-03-11': 'WHO declares pandemic', '2020-04-02': 'Worldwide cases at 1 million', '2020-04-08': 'Wuhan reopens', '2020-04-13': 'US ceases WHO funding','2020-04-17': 'First Moderna trials', '2020-04-24': 'ACT-A announced',  '2020-09-23': 'New strain of Covid', '2020-09-28': 'Global deaths at 1 million', '2020-10-02': 'Trump infected'}
+
+print(type(dates[0]))
+
 for i, date in enumerate(dates):
+
+    # Timeline:
+    # Jan 10: Novel coronavirus announced by WHO
+    # March 11, 2020
+    #After more than 118,000 cases in 114 countries and 4,291 deaths, the WHO declares COVID-19 a pandemic.
+    #
+    #July 27 — Moderna Vaccine Begins Phase 3 Trial,
+    #
+    #September 8 — AstraZeneca Halts Phase 3 Vaccine Trial
+    #
+    #September 14 — Pfizer, BioNTech Expand Phase 3 Trial
+    #
+    #September 21 — Johnson & Johnson Begins Phase 3 Vaccine Trial
+    #
+    #September 23 — A New, More Contagious Strain of COVID-19 Is Discovered
+
+
+    #date_str = calendar.month_name[date.month] + str(date.day)
     #print(date.day)
-    curr_label = calendar.month_name[date.month] if date.day == 1 else ''
-    curr_style = {'display': 'block'} if date.day == 1 else {'display': 'none'}
-    #curr_tooltip = {'placement': 'bottom'}
+    curr_label = ''
+    curr_style = {'display': 'none'}
+    if (date.day == 1):
+        curr_label = calendar.month_name[date.month]
+        curr_style = {'display': 'block'}
+
+    elif (date.strftime('%Y-%m-%d') in important_dates_dict):
+        curr_label = important_dates_dict[date.strftime('%Y-%m-%d')]
+        curr_style = {'display': 'block', 'transform': 'rotate(-45deg) translateY(-3rem)'}
+
+        #curr_tooltip = {'placement': 'bottom'}
     date_marks[i] = {'label': curr_label, 'style': curr_style}
 
 # date_marks[0]['label'] = 'January'
@@ -38,7 +71,7 @@ app.layout = html.Div([
         html.H1('Visualizing Global Emotions for 2020 Through Covid-19 Tweets', id='page-title', style={'color': '#89a2cc', 'font-size': '50px'})
     ],
     style={'display': 'flex', 'justify-content': 'center'}),
-    html.Div([html.Hr(style={'border-top': '1px solid #ccc', 'margin': '20px 0px', 'background-color': '#1d3a69', 'height': '40px', 'width': '100%'}),
+    html.Div([html.Hr(style={'border-top': '1px solid #ccc', 'margin': '20px 0px', 'background-color': '#1d3a69', 'height': '75px', 'width': '100%'}),
             #   html.Hr(style={'height':'20px'}),
 ]),
     PlaybackSliderAIO(
@@ -46,7 +79,14 @@ app.layout = html.Div([
         slider_props={'min': 0, 'max': len(dates)-1, 'value': 0, 'step': 1, 'marks': date_marks},
         button_props={'className': 'float-left'}
     ),
+    
     html.Pre(id='click-data'),
+
+    html.Div([
+            
+            dcc.Input(id='country-input', type='text', placeholder='Enter desired country...', style={'font-size': '20px'}),
+            html.Button('Search country', id='country-button', n_clicks=0, style={'background-color': '#445570', 'color': 'white','font-size': '15px'}) 
+    ]),
     
     html.Div([
         html.Div([dcc.Graph(id='fear-map')], style={'display': 'inline-block', 'width': '50%'}),
@@ -62,6 +102,48 @@ app.layout = html.Div([
 #{0: 'January', 48856: 'February', 304854: 'March', 3349990: 'April', 'May': 6501119, 8832159:'June', 10353251: 'July', 11394992: 'August', 12229689: 'September', 13012033: 'October', 14043435: 'November'}
 from dash.exceptions import PreventUpdate
 from dash import callback_context
+
+def zoom_country(fig, country, geo_path):
+    geo_df = pd.read_csv(geo_path)
+    coord_row = geo_df[(geo_df['COUNTRY'].str.lower() == country.lower()) | (geo_df['ISO'].str.lower() == country.lower())]
+    if (coord_row.empty):
+        return
+
+    #TODO: Maybe make an animation when transitioning from country to country
+
+
+    fig.update_geos(
+        center={'lon': coord_row.iloc[0]['longitude'], 'lat': coord_row.iloc[0]['latitude']},
+        projection_scale=4,
+    )
+    #return fig
+
+@app.callback(
+[Output('fear-map', 'figure', allow_duplicate=True),
+        Output('anger-map', 'figure', allow_duplicate=True),
+        Output('happiness-map', 'figure', allow_duplicate=True),
+        Output('sadness-map', 'figure', allow_duplicate=True),],
+[Input('country-button', 'n_clicks')],
+[State('country-input', 'value'), State('fear-map', 'figure'),
+        State('anger-map', 'figure'),
+        State('happiness-map', 'figure'),
+        State('sadness-map', 'figure'),], prevent_initial_call=True)
+def search_country(n_clicks, country, fear_dict, anger_dict, happiness_dict, sadness_dict):
+    print('Hi')
+    fear_fig = go.Figure(fear_dict)
+    anger_fig = go.Figure(anger_dict)
+    happiness_fig = go.Figure(happiness_dict)
+    sadness_fig = go.Figure(sadness_dict)
+    # print(type(fear_fig))
+    print(fear_dict['layout']['geo'])
+    zoom_country(fear_fig, country, 'countries.csv')
+    zoom_country(anger_fig, country, 'countries.csv')
+    zoom_country(happiness_fig, country, 'countries.csv')
+    zoom_country(sadness_fig, country, 'countries.csv')
+
+
+    return fear_fig, anger_fig, happiness_fig, sadness_fig
+
 
 @app.callback(
     [
@@ -81,9 +163,13 @@ from dash import callback_context
         Input('sadness-map', 'clickData'),
         Input('reset-button', 'n_clicks'),
     ],
-    [State('reset-button', 'disabled')]
+    [State('reset-button', 'disabled'),
+        State('fear-map', 'figure'),
+        State('anger-map', 'figure'),
+        State('happiness-map', 'figure'),
+        State('sadness-map', 'figure'),]
 )
-def update_maps_and_lines(selected_date_index, fear_clickData, anger_clickData, happiness_clickData, sadness_clickData, n_clicks, button_disabled):
+def update_maps_and_lines(selected_date_index, fear_clickData, anger_clickData, happiness_clickData, sadness_clickData, n_clicks, button_disabled, fear_dict, anger_dict, happiness_dict, sadness_dict):
     selected_date = dates[selected_date_index]
     # Identify which input triggered the callback
     ctx = callback_context
@@ -111,6 +197,18 @@ def update_maps_and_lines(selected_date_index, fear_clickData, anger_clickData, 
     happiness_fig = create_choropleth_map(selected_date, 'happiness_intensity')
     sadness_fig = create_choropleth_map(selected_date, 'sadness_intensity')
 
+    if (fear_dict and anger_dict and happiness_dict and sadness_dict):
+        fear_geos = fear_dict['layout']['geo']
+        anger_geos = anger_dict['layout']['geo']
+        happiness_geos = happiness_dict['layout']['geo']
+        sadness_geos = sadness_dict['layout']['geo']
+
+        fear_fig.update_geos(fear_geos)
+        anger_fig.update_geos(anger_geos)
+        happiness_fig.update_geos(happiness_geos)
+        sadness_fig.update_geos(sadness_geos)
+
+
 
     # Determine the disabled state of the reset button
     reset_disabled = False if country is not None else (True if n_clicks > 0 else button_disabled)
@@ -119,7 +217,9 @@ def update_maps_and_lines(selected_date_index, fear_clickData, anger_clickData, 
     reset_n_clicks = 0 if n_clicks > 0 else n_clicks
 
     return fear_fig, anger_fig, happiness_fig, sadness_fig, fig_lines, reset_disabled, reset_n_clicks
-  
+
+
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)

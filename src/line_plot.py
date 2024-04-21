@@ -18,7 +18,7 @@ def preprocess_country_data(df):
 global_df = preprocess_global_data(df_daily)
 country_df = preprocess_country_data(df_daily)
 
-important_dates_dict = {'2020-02-11': 'WHO names Covid-19','2020-03-11': 'WHO declares pandemic', '2020-04-02': 'Worldwide cases at 1 million', '2020-04-13': 'US ceases WHO funding','2020-04-17': 'First Moderna trials', '2020-04-24': 'ACT-A announced', '2020-10-02': 'Trump infected'}
+important_dates_dict = {'2020-02-11': 'WHO names Covid-19','2020-03-11': 'WHO declares pandemic', '2020-04-02': 'Worldwide cases at 1 million', '2020-04-13': 'US ceases WHO funding','2020-04-17': 'First Moderna trials', '2020-04-24': 'ACT-A announced', '2020-08-30': 'Schools reopen' , '2020-10-02': 'Trump infected'}
 
 def add_annotations(fig):
     for i, date in enumerate(important_dates_dict):
