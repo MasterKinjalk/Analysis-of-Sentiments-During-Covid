@@ -8,7 +8,7 @@ from line_plot import plot_global_emotions, plot_country_emotions
 import dash_bootstrap_components as dbc
 import calendar
 import json
-
+import pandas as pd
 
 app = dash.Dash(__name__, external_stylesheets=[
         dbc.themes.BOOTSTRAP,
@@ -84,6 +84,7 @@ from dash import callback_context
     [State('reset-button', 'disabled')]
 )
 def update_maps_and_lines(selected_date_index, fear_clickData, anger_clickData, happiness_clickData, sadness_clickData, n_clicks, button_disabled):
+
     selected_date = dates[selected_date_index]
     # Identify which input triggered the callback
     ctx = callback_context
