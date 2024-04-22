@@ -190,7 +190,7 @@ def plot_country_emotions(selected_date, country):
 
     fig.update_xaxes(ticklabelmode="period")
     
-    add_annotations(fig)
+    # add_annotations(fig)
 
     return fig
 

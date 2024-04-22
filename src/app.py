@@ -202,9 +202,6 @@ def update_maps_and_lines(selected_date_index, fear_clickData, anger_clickData, 
     country = None
 
 
-
-
-
     # Check which map was clicked based on the triggered input
 
     if triggered_id == 'fear-map' and fear_clickData:
@@ -363,108 +360,6 @@ def update_big_map(selected_date_index, fear_clicks, anger_clicks, happiness_cli
 
     return fig, reset_fear_clicks, reset_anger_clicks, reset_happiness_clicks, reset_sadness_clicks
 
-
-
-
-@app.callback(
-
-    Output('big-map', 'figure'),
-
-    Output('fear-button', 'n_clicks'),
-
-    Output('anger-button', 'n_clicks'),
-
-    Output('happiness-button', 'n_clicks'),
-
-    Output('sadness-button', 'n_clicks'),
-
-    [
-
-        Input(PlaybackSliderAIO.ids.slider('date-slider'), 'value'),
-
-        Input('fear-button', 'n_clicks'),
-
-        Input('anger-button', 'n_clicks'),
-
-        Input('happiness-button', 'n_clicks'),
-
-        Input('sadness-button', 'n_clicks'),
-
-    ]
-
-)
-
-def update_big_map(selected_date_index, fear_clicks, anger_clicks, happiness_clicks, sadness_clicks):
-
-    selected_date = dates[selected_date_index]
-
-    ctx = dash.callback_context
-
-    triggered_id = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else None
-
-
-
-    emotion = None
-
-    reset_fear_clicks = fear_clicks
-
-    reset_anger_clicks = anger_clicks
-
-    reset_happiness_clicks = happiness_clicks
-
-    reset_sadness_clicks = sadness_clicks
-
-
-
-    if fear_clicks > 0:
-
-        emotion = 'fear_intensity'
-
-        print("fear is clicked!!!")
-
-        fig = create_choropleth_map(selected_date, emotion)
-
-        reset_fear_clicks = 0 
-
-    elif anger_clicks > 0:
-
-        emotion = 'anger_intensity'
-
-        fig = create_choropleth_map(selected_date, emotion)
-
-        reset_anger_clicks = 0 
-
-    elif happiness_clicks > 0:
-
-        emotion = 'happiness_intensity'
-
-        fig = create_choropleth_map(selected_date, emotion)
-
-        reset_happiness_clicks = 0 
-
-    elif sadness_clicks > 0:
-
-        emotion = 'sadness_intensity'
-
-        fig = create_choropleth_map(selected_date, emotion)
-
-        reset_sadness_clicks = 0 
-
-
-
-
-
-    # if emotion:
-
-    #     fig = create_choropleth_map(selected_date, emotion)
-
-    else:
-
-        fig = go.Figure()
-
-
-
-    return fig, reset_fear_clicks, reset_anger_clicks, reset_happiness_clicks, reset_sadness_clicks
 
 
 
