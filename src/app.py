@@ -72,6 +72,7 @@ from dash import callback_context
         Output('emotion-lines', 'figure'),
         Output('reset-button', 'disabled'),
         Output('reset-button', 'n_clicks'),
+
     ],
     [
         Input(PlaybackSliderAIO.ids.slider('date-slider'), 'value'),
@@ -80,46 +81,61 @@ from dash import callback_context
         Input('happiness-map', 'clickData'),
         Input('sadness-map', 'clickData'),
         Input('reset-button', 'n_clicks'),
+        Input('fear-map', 'relayoutData'),
+        Input('anger-map', 'relayoutData'),
+        Input('happiness-map', 'relayoutData'),
+        Input('sadness-map', 'relayoutData'),
+
     ],
-    [State('reset-button', 'disabled')]
+    [State('reset-button', 'disabled'),
+     State('fear-map', 'figure'),
+     State('anger-map', 'figure'),
+     State('happiness-map', 'figure'),
+     State('sadness-map', 'figure')
+     ]
 )
-def update_maps_and_lines(selected_date_index, fear_clickData, anger_clickData, happiness_clickData, sadness_clickData, n_clicks, button_disabled):
+
+def update_maps_and_lines(selected_date_index, fear_clickData, anger_clickData, happiness_clickData, sadness_clickData, n_clicks, relayoutData1, relayoutData2, relayoutData3, relayoutData4, button_disabled, fig1, fig2, fig3, fig4):
 
     selected_date = dates[selected_date_index]
-    # Identify which input triggered the callback
-    ctx = callback_context
+    ctx = dash.callback_context
     triggered_id = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else None
 
     country = None
 
-
-    # Check which map was clicked based on the triggered input
-    if triggered_id == 'fear-map' and fear_clickData:
-        country = fear_clickData['points'][0]['location']
-    elif triggered_id == 'anger-map' and anger_clickData:
-        country = anger_clickData['points'][0]['location']
-    elif triggered_id == 'happiness-map' and happiness_clickData:
-        country = happiness_clickData['points'][0]['location']
-    elif triggered_id == 'sadness-map' and sadness_clickData:
-        country = sadness_clickData['points'][0]['location']
+    # Check if triggered_id is not None and handle map clicks safely
+    if triggered_id and triggered_id.endswith('-map'):
+        clickData = ctx.triggered[0].get('value')
+        if clickData and 'points' in clickData:
+            country = clickData['points'][0]['location'] if clickData['points'] else None
 
     # Update the line plot based on the selected country or global data
     fig_lines = plot_global_emotions(selected_date) if country is None else plot_country_emotions(selected_date, country)
 
-    # Always create choropleth maps with global data
-    fear_fig = create_choropleth_map(selected_date, 'fear_intensity')
-    anger_fig = create_choropleth_map(selected_date, 'anger_intensity')
-    happiness_fig = create_choropleth_map(selected_date, 'happiness_intensity')
-    sadness_fig = create_choropleth_map(selected_date, 'sadness_intensity')
+    # Conditionally update map figures based on interaction type
+    if triggered_id and triggered_id == 'date-slider':
+        fear_fig = create_choropleth_map(selected_date, 'fear_intensity')
+        anger_fig = create_choropleth_map(selected_date, 'anger_intensity')
+        happiness_fig = create_choropleth_map(selected_date, 'happiness_intensity')
+        sadness_fig = create_choropleth_map(selected_date, 'sadness_intensity')
+    else:
+        # Handle relayout data and maintain the state
+        if any(triggered_id == x and ctx.triggered[0].get('value') for x in ['fear-map', 'anger-map', 'happiness-map', 'sadness-map']):
+            new_layout = ctx.triggered[0]['value']
+            if new_layout and 'mapbox.zoom' in new_layout and 'mapbox.center' in new_layout:
+                zoom = new_layout['mapbox.zoom']
+                center = new_layout['mapbox.center']
+                for fig in [fig1, fig2, fig3, fig4]:
+                    fig['layout']['mapbox']['zoom'] = zoom
+                    fig['layout']['mapbox']['center'] = center
+        fear_fig, anger_fig, happiness_fig, sadness_fig = fig1, fig2, fig3, fig4
 
-
-    # Determine the disabled state of the reset button
     reset_disabled = False if country is not None else (True if n_clicks > 0 else button_disabled)
-
-    # Reset the button clicks to 0 after processing to avoid repeated reset triggers
     reset_n_clicks = 0 if n_clicks > 0 else n_clicks
 
     return fear_fig, anger_fig, happiness_fig, sadness_fig, fig_lines, reset_disabled, reset_n_clicks
+
+
   
 
 if __name__ == '__main__':
