@@ -32,5 +32,3 @@ pip install -r requirements.txt
 ```
 python dashApp.py
 ```
-
-After running the command, please allow a couple of minutes for the application to load in the browser. Given the dataset's size (approximately 1GB), it takes some time to process and render the visualizations.

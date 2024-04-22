@@ -86,6 +86,25 @@ def preprocess_country_data(df):
 global_df = preprocess_global_data(df_daily)
 country_df = preprocess_country_data(df_daily)
 
+important_dates_dict = {'2020-02-11': 'WHO names Covid-19','2020-03-11': 'WHO declares pandemic', '2020-04-02': 'Worldwide cases at 1 million', '2020-04-13': 'US ceases WHO funding','2020-04-17': 'First Moderna trials', '2020-04-24': 'ACT-A announced', '2020-10-02': 'Trump infected'}
+
+def add_annotations(fig):
+    for i, date in enumerate(important_dates_dict):
+        curr_date_row = global_df.loc[date]
+        fear = curr_date_row['fear_intensity']
+        angle = 20
+        y_offset = -50
+        if (i % 2 == 0):
+            y_offset=75
+            angle=-20
+        fig.add_annotation(x=date, y=fear,
+            ayref="pixel",
+            text=important_dates_dict[date],
+            showarrow=True,
+            arrowhead=1,
+            ay=y_offset,
+            textangle=angle)
+
 def plot_global_emotions(selected_date):
 
     title = 'Global Emotional Intensity over Time'
@@ -98,6 +117,31 @@ def plot_global_emotions(selected_date):
     )
     fig.update_layout(clickmode='event+select')
     fig.update_layout(transition_duration=500)
+
+    # Timeline:
+    # Jan 10: Novel coronavirus announced by WHO
+    # March 11, 2020
+    #After more than 118,000 cases in 114 countries and 4,291 deaths, the WHO declares COVID-19 a pandemic.
+    #
+    #July 27 — Moderna Vaccine Begins Phase 3 Trial,
+    #
+    #September 8 — AstraZeneca Halts Phase 3 Vaccine Trial
+    #
+    #September 14 — Pfizer, BioNTech Expand Phase 3 Trial
+    #
+    #September 21 — Johnson & Johnson Begins Phase 3 Vaccine Trial
+    #
+    #September 23 — A New, More Contagious Strain of COVID-19 Is Discovered
+
+    #October 2 - Trump infected
+
+    # fig.add_annotation(x=2, y=5,
+    #         text="Text annotation with arrow",
+    #         showarrow=True,
+    #         arrowhead=1)
+    fig.update_xaxes(ticklabelmode="period")
+
+    add_annotations(fig)
     return fig
 
 # def plot_global_emotions(selected_date):
@@ -143,8 +187,15 @@ def plot_country_emotions(selected_date, country):
     paper_bgcolor='rgba(0,0,0,0)',
     plot_bgcolor='rgba(0,0,0,0)',
     )
+
+    fig.update_xaxes(ticklabelmode="period")
+    
+    add_annotations(fig)
+
     return fig
+
 
 # plot_country_emotions("2020-05-27 00:00:00","India").show()
 
 # plot_global_emotions("2020-05-27").show()
+
