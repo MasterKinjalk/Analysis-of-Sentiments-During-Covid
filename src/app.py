@@ -60,11 +60,61 @@ app.layout = html.Div(
     [
         html.Div(
             [
+                dbc.Modal(
+                    [
+                        dbc.ModalHeader(html.H4("Disclaimer")),
+                        dbc.ModalBody(
+                            [
+                                html.H5(
+                                    "No personally identifiable information (PII):"
+                                ),
+                                html.P(
+                                    "This visualization does not store or display any personally identifiable information. Our aim is to respect privacy and maintain the confidentiality of all individuals."
+                                ),
+                                html.H5("Purpose of the Visualization:"),
+                                html.P(
+                                    "The visualization is intended solely for informational purposes. It is not designed to foster or encourage prejudice against any residents of specific countries or regions. Our goal is to provide clear, unbiased information to help users understand trends and patterns, not to facilitate judgments or biases."
+                                ),
+                                html.H5("Data Representation and Bias:"),
+                                html.P(
+                                    "Please be aware that the data presented may reflect inherent biases due to varying levels of Twitter usage across different countries or regions. Consequently, regions with higher Twitter activity may appear disproportionately represented. This does not necessarily indicate actual levels of COVID-19 activity but rather the volume of discussion surrounding it on this platform."
+                                ),
+                                html.H5("Ethical Use of Data:"),
+                                html.P(
+                                    "We are committed to the ethical use of data. It is crucial that this visualization is used in a manner that does not contribute to misinformation or stigmatize any countries or regions. We urge all users to consider the context and limitations of the data when interpreting this visualization. Misinterpretations that could lead to misinformation or discrimination are strongly discouraged."
+                                ),
+                                html.H5("Limitations of Data:"),
+                                html.P(
+                                    "Users should be aware of the limitations inherent in this data, which is sourced from publicly available Twitter posts. The insights derived are not definitive medical or scientific data and should be viewed as indicative rather than conclusive."
+                                ),
+                                html.H5("Changes and Updates:"),
+                                html.P(
+                                    "The information in this visualization is subject to change and may be updated periodically to reflect new data or corrections. We encourage users to check back regularly for the most current information."
+                                ),
+                                html.B(
+                                    "By using this visualization, you acknowledge your understanding and agreement to these terms."
+                                ),
+                            ]
+                        ),
+                        dbc.ModalFooter(
+                            dbc.Button(
+                                "I acknowledge.",
+                                id="consent-button",
+                                color="primary",
+                                className="ml-auto",
+                            )
+                        ),
+                    ],
+                    id="modal",
+                    size="xl",
+                    centered=True,
+                    is_open=True,
+                ),
                 html.H1(
                     "Visualizing Global Emotions for 2020 Through Covid-19 Tweets",
                     id="page-title",
                     style={"color": "#89a2cc", "font-size": "50px"},
-                )
+                ),
             ],
             style={"display": "flex", "justify-content": "center"},
         ),
@@ -312,7 +362,7 @@ def update_maps_and_lines(
     country = None
     relayout_data = None
     triggered_input = ctx.triggered[0]["prop_id"]
-    print(triggered_input)
+
     # Logic to check which map triggered the zoom and to extract that relayoutData
     # relayout_data = None
     if triggered_input.endswith("relayoutData"):
@@ -370,7 +420,7 @@ def update_maps_and_lines(
 
     # Reset the button clicks to 0 after processing to avoid repeated reset triggers
 
-    reset_n_clicks = 0 if n_clicks > 1 else n_clicks
+    reset_n_clicks = 0 if n_clicks > 2 else n_clicks
 
     return (
         fear_fig,
@@ -402,52 +452,31 @@ def update_big_map(
 ):
 
     selected_date = dates[selected_date_index]
-
     ctx = dash.callback_context
-
     triggered_id = ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else None
 
     emotion = None
-
     reset_fear_clicks = fear_clicks
-
     reset_anger_clicks = anger_clicks
-
     reset_happiness_clicks = happiness_clicks
-
     reset_sadness_clicks = sadness_clicks
 
     if fear_clicks > 0:
-
         emotion = "fear_intensity"
-
         print("fear is clicked!!!")
-
         fig = create_choropleth_map(selected_date, emotion)
-
         reset_fear_clicks = 0
     elif anger_clicks > 0:
-
         emotion = "anger_intensity"
-
         fig = create_choropleth_map(selected_date, emotion)
-
         reset_anger_clicks = 0
-
     elif happiness_clicks > 0:
-
         emotion = "happiness_intensity"
-
         fig = create_choropleth_map(selected_date, emotion)
-
         reset_happiness_clicks = 0
-
     elif sadness_clicks > 0:
-
         emotion = "sadness_intensity"
-
         fig = create_choropleth_map(selected_date, emotion)
-
         reset_sadness_clicks = 0
 
     # if emotion:
@@ -465,6 +494,18 @@ def update_big_map(
         reset_happiness_clicks,
         reset_sadness_clicks,
     )
+
+
+# Define the callback to display the consent modal on page load
+@app.callback(
+    Output("modal", "is_open"),
+    [Input("consent-button", "n_clicks")],
+    [State("modal", "is_open")],
+)
+def toggle_modal(n1, is_open):
+    if n1:
+        return False
+    return True if not n1 and is_open else False
 
 
 if __name__ == "__main__":
