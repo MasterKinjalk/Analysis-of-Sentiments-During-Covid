@@ -396,12 +396,7 @@ def update_maps_and_lines(
     happiness_fig = create_choropleth_map(selected_date, "happiness_intensity")
     sadness_fig = create_choropleth_map(selected_date, "sadness_intensity")
 
-    # # If there's valid relayout data, update all figures with this layout
-    if relayout_data:
-        for fig in (fear_fig, anger_fig, happiness_fig, sadness_fig):
-            fig.update_layout(relayout_data)
-
-    if fear_fig and anger_fig and happiness_fig and sadness_fig:
+    if (fear_fig and anger_fig and happiness_fig and sadness_fig) or relayout_data:
         fear_geos = fear_fig["layout"]["geo"]
         anger_geos = anger_fig["layout"]["geo"]
         happiness_geos = happiness_fig["layout"]["geo"]
@@ -411,6 +406,9 @@ def update_maps_and_lines(
         anger_fig.update_geos(anger_geos)
         happiness_fig.update_geos(happiness_geos)
         sadness_fig.update_geos(sadness_geos)
+
+        for fig in (fear_fig, anger_fig, happiness_fig, sadness_fig):
+            fig.update_layout(relayout_data)
 
     # Determine the disabled state of the reset button
 
