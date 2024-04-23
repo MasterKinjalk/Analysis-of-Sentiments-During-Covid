@@ -144,6 +144,7 @@ app.layout = html.Div(
             button_props={"className": "float-left"},
         ),
         html.Pre(id="click-data"),
+        dcc.Store(id="map-relayout-data"),
         html.Div(
             [
                 dcc.Input(
@@ -307,6 +308,27 @@ def search_country(
 
 
 @app.callback(
+    Output("map-relayout-data", "data"),  # Output to store relayoutData
+    Input("fear-map", "relayoutData"),
+    Input("anger-map", "relayoutData"),
+    Input("happiness-map", "relayoutData"),
+    Input("sadness-map", "relayoutData"),
+    State("map-relayout-data", "data"),  # Current stored relayoutData
+)
+def store_relayout_data(
+    fear_relayout, anger_relayout, happiness_relayout, sadness_relayout, existing_data
+):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return existing_data
+    triggered_prop_id = ctx.triggered[0]["prop_id"]
+    new_relayout_data = ctx.triggered[0]["value"]
+    if new_relayout_data:
+        return new_relayout_data
+    return existing_data
+
+
+@app.callback(
     [
         Output("fear-map", "figure"),
         Output("anger-map", "figure"),
@@ -326,6 +348,7 @@ def search_country(
         Input("anger-map", "relayoutData"),
         Input("happiness-map", "relayoutData"),
         Input("sadness-map", "relayoutData"),
+        Input("map-relayout-data", "data"),
         Input("reset-button", "n_clicks"),
     ],
     [
@@ -346,11 +369,12 @@ def update_maps_and_lines(
     anger_relayoutData,
     happiness_relayoutData,
     sadness_relayoutData,
+    map_relayout,
     n_clicks,
-    fear_fig,
-    anger_fig,
-    happiness_fig,
-    sadness_fig,
+    fear_dict,
+    anger_dict,
+    happiness_dict,
+    sadness_dict,
     button_disabled,
 ):
     selected_date = dates[selected_date_index]
@@ -396,11 +420,19 @@ def update_maps_and_lines(
     happiness_fig = create_choropleth_map(selected_date, "happiness_intensity")
     sadness_fig = create_choropleth_map(selected_date, "sadness_intensity")
 
-    if (fear_fig and anger_fig and happiness_fig and sadness_fig) or relayout_data:
-        fear_geos = fear_fig["layout"]["geo"]
-        anger_geos = anger_fig["layout"]["geo"]
-        happiness_geos = happiness_fig["layout"]["geo"]
-        sadness_geos = sadness_fig["layout"]["geo"]
+    # # If there's valid relayout data, update all figures with this layout
+    if relayout_data:
+        for fig in (fear_fig, anger_fig, happiness_fig, sadness_fig):
+            fig.update_layout(relayout_data)
+    elif map_relayout:
+        for fig in (fear_fig, anger_fig, happiness_fig, sadness_fig):
+            fig.update_layout(relayout_data)
+
+    if fear_dict and anger_dict and happiness_dict and sadness_dict:
+        fear_geos = fear_dict["layout"]["geo"]
+        anger_geos = anger_dict["layout"]["geo"]
+        happiness_geos = happiness_dict["layout"]["geo"]
+        sadness_geos = sadness_dict["layout"]["geo"]
 
         fear_fig.update_geos(fear_geos)
         anger_fig.update_geos(anger_geos)
