@@ -88,6 +88,11 @@ country_df = preprocess_country_data(df_daily)
 
 important_dates_dict = {'2020-02-11': 'WHO names Covid-19','2020-03-11': 'WHO declares pandemic', '2020-04-02': 'Worldwide cases at 1 million', '2020-04-13': 'US ceases WHO funding','2020-04-17': 'First Moderna trials', '2020-04-24': 'ACT-A announced', '2020-08-30': 'Schools reopen' , '2020-10-02': 'Trump infected'}
 
+dates_US = {'2020-03-06': 'Grand Princess cruise ship', '2020-03-15': 'States begin lockdown', '2020-04-03': 'CDC mask guidelines', '2020-04-30': 'Warp Speed', '2020-10-02': 'Trump infected'}
+dates_UK = {'2020-03-23': 'Lockdown starts', '2020-06-01': 'Schools repoen', '2020-09-14': 'Rule of 6'}
+
+country_dates = {'United States': dates_US, 'United Kingdom': dates_UK}
+
 def add_annotations(fig):
     for i, date in enumerate(important_dates_dict):
         curr_date_row = global_df.loc[date]
@@ -100,6 +105,26 @@ def add_annotations(fig):
         fig.add_annotation(x=date, y=fear,
             #ayref="pixel",
             text=important_dates_dict[date],
+            showarrow=True,
+            arrowhead=1,
+            ay=y_offset,
+            textangle=angle)
+        
+def add_country_annotations(fig, country):
+    if (country not in country_dates):
+        return
+    date_dict = country_dates[country]
+    for i, date in enumerate(date_dict):
+        curr_date_row = global_df.loc[date]
+        fear = curr_date_row['fear_intensity']
+        angle = 0
+        y_offset = -50
+        if (i % 2 == 0):
+            y_offset=75
+            angle=-20
+        fig.add_annotation(x=date, y=fear,
+            #ayref="pixel",
+            text=date_dict[date],
             showarrow=True,
             arrowhead=1,
             ay=y_offset,
@@ -190,7 +215,7 @@ def plot_country_emotions(selected_date, country):
 
     fig.update_xaxes(ticklabelmode="period")
     
-    # add_annotations(fig)
+    add_country_annotations(fig, country)
 
     return fig
 
