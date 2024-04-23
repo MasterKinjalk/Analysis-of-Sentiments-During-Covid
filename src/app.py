@@ -162,6 +162,7 @@ app.layout = html.Div(
                         "font-size": "15px",
                     },
                 ),
+                dcc.Input(id="updated-date", type="hidden"),
             ]
         ),
         html.Div(
@@ -315,6 +316,7 @@ def search_country(
         Output("emotion-lines", "figure"),
         Output("reset-button", "disabled"),
         Output("reset-button", "n_clicks"),
+        Output("updated-date", "value")
     ],
     [
         Input(PlaybackSliderAIO.ids.slider("date-slider"), "value"),
@@ -327,6 +329,7 @@ def search_country(
         Input("happiness-map", "relayoutData"),
         Input("sadness-map", "relayoutData"),
         Input("reset-button", "n_clicks"),
+        Input("updated-date", "value"),
     ],
     [
         State("fear-map", "figure"),
@@ -352,8 +355,12 @@ def update_maps_and_lines(
     happiness_dict,
     sadness_dict,
     button_disabled,
+    date
 ):
     selected_date = dates[selected_date_index]
+    print("first date  ")
+    
+    print(selected_date)
 
     # Identify which input triggered the callback
 
@@ -430,6 +437,7 @@ def update_maps_and_lines(
         fig_lines,
         reset_disabled,
         reset_n_clicks,
+        selected_date
     )
 
 
@@ -440,7 +448,8 @@ def update_maps_and_lines(
     Output("happiness-button", "n_clicks"),
     Output("sadness-button", "n_clicks"),
     [
-        Input(PlaybackSliderAIO.ids.slider("date-slider"), "value"),
+        # Input(PlaybackSliderAIO.ids.slider("date-slider"), "value"),
+        Input("updated-date", "value"),
         Input("fear-button", "n_clicks"),
         Input("anger-button", "n_clicks"),
         Input("happiness-button", "n_clicks"),
@@ -448,10 +457,11 @@ def update_maps_and_lines(
     ],
 )
 def update_big_map(
-    selected_date_index, fear_clicks, anger_clicks, happiness_clicks, sadness_clicks
+    selected_date, fear_clicks, anger_clicks, happiness_clicks, sadness_clicks
 ):
+    print("big map date")
+    print(selected_date)
 
-    selected_date = dates[selected_date_index]
     ctx = dash.callback_context
     triggered_id = ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else None
 
@@ -465,28 +475,19 @@ def update_big_map(
         emotion = "fear_intensity"
         print("fear is clicked!!!")
         fig = create_choropleth_map(selected_date, emotion)
-        reset_fear_clicks = 0
     elif anger_clicks > 0:
         emotion = "anger_intensity"
         fig = create_choropleth_map(selected_date, emotion)
-        reset_anger_clicks = 0
     elif happiness_clicks > 0:
         emotion = "happiness_intensity"
         fig = create_choropleth_map(selected_date, emotion)
-        reset_happiness_clicks = 0
     elif sadness_clicks > 0:
         emotion = "sadness_intensity"
         fig = create_choropleth_map(selected_date, emotion)
-        reset_sadness_clicks = 0
-
-    # if emotion:
-
-    #     fig = create_choropleth_map(selected_date, emotion)
-
     else:
+        fig = create_choropleth_map(selected_date, "fear_intensity")
 
-        fig = go.Figure()
-
+    reset_fear_clicks = 0
     return (
         fig,
         reset_fear_clicks,
