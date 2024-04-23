@@ -31,7 +31,6 @@ def preprocess_cum_global_data(df):
     return grouped_df
     
 
-print("called 1")
 def plot_cumulative_global_emotions():
     global_df_cum = preprocess_cum_global_data(df_daily)
     df_cumulative = global_df_cum

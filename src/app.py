@@ -252,7 +252,7 @@ app.layout = html.Div(
         html.Div([
         dcc.Input(id='country-name-input', type='text', placeholder='Enter country name...'),
         html.Button('Enter', id='enter-button', n_clicks=0, style={'margin-left': '10px'}),
-        # html.Button('Reset to Global Summarization', id='reset-summarization', n_clicks=0, style={'margin-left': '10px'})
+        html.Button('Reset to Global Summarization', id='reset-summarization', n_clicks=0, style={'margin-left': '10px'})
     ]),
     dcc.Graph(id='stacked-emotions'),
     dcc.Graph(id='cumulative-emotions')
@@ -509,24 +509,30 @@ def update_big_map(
     [
         Output('stacked-emotions', 'figure'),
         Output('cumulative-emotions', 'figure'),
-        Output('country-name-input', 'value')
-        # Output("reset-summarization", "disabled"),
-        # Output("reset-summarization", "n_clicks")
+        Output('country-name-input', 'value'),
+        Output("reset-summarization", "disabled"),
+        Output("reset-summarization", "n_clicks")
     ]
     ,
     [
         Input("enter-button", "n_clicks"),
-        # Input("reset-summarization", "n_clicks")
+        Input("reset-summarization", "n_clicks")
     ],
     [
         State('country-name-input', 'value'),
-        # State("reset-summarization", "disabled")
+        State("reset-summarization", "disabled")
     ],
 )
-def update_summarization(n_clicks, countryName):
+def update_summarization(n_clicks,n_clicks_sum, countryName, button_disabled):
     fig_stacked = go.Figure()
     fig_cumulative = go.Figure()
-    
+    if n_clicks_sum>0:
+        countryName = ""
+        fig_stacked = plot_stacked_global_emotions()
+        fig_cumulative = plot_cumulative_global_emotions()
+        n_clicks_sum = 0
+        button_disabled = False
+        return fig_stacked, fig_cumulative, countryName, button_disabled, n_clicks_sum
     if n_clicks > 0 and len(countryName.strip())>0:
         countryName = countryName.strip()
         countryName = countryName[0].upper() + countryName[1:]
@@ -534,12 +540,12 @@ def update_summarization(n_clicks, countryName):
         fig_stacked = plot_stacked_global_emotions() if countryName is None else plot_stacked_country_emotions(countryName)
         fig_cumulative = plot_cumulative_global_emotions() if countryName is None else plot_cumulative_country_emotions(countryName)
         countryName = ""
-        return fig_stacked, fig_cumulative, countryName
+        return fig_stacked, fig_cumulative, countryName, button_disabled, n_clicks_sum
     else:
         countryName = ""
         fig_stacked = plot_stacked_global_emotions()
         fig_cumulative = plot_cumulative_global_emotions()
-        return fig_stacked, fig_cumulative, countryName
+        return fig_stacked, fig_cumulative, countryName, button_disabled, n_clicks_sum
     
 
 
