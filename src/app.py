@@ -347,10 +347,10 @@ def update_maps_and_lines(
     happiness_relayoutData,
     sadness_relayoutData,
     n_clicks,
-    fear_fig,
-    anger_fig,
-    happiness_fig,
-    sadness_fig,
+    fear_dict,
+    anger_dict,
+    happiness_dict,
+    sadness_dict,
     button_disabled,
 ):
     selected_date = dates[selected_date_index]
@@ -401,11 +401,11 @@ def update_maps_and_lines(
         for fig in (fear_fig, anger_fig, happiness_fig, sadness_fig):
             fig.update_layout(relayout_data)
 
-    if fear_fig and anger_fig and happiness_fig and sadness_fig:
-        fear_geos = fear_fig["layout"]["geo"]
-        anger_geos = anger_fig["layout"]["geo"]
-        happiness_geos = happiness_fig["layout"]["geo"]
-        sadness_geos = sadness_fig["layout"]["geo"]
+    if fear_dict and anger_dict and happiness_dict and sadness_dict:
+        fear_geos = fear_dict["layout"]["geo"]
+        anger_geos = anger_dict["layout"]["geo"]
+        happiness_geos = happiness_dict["layout"]["geo"]
+        sadness_geos = sadness_dict["layout"]["geo"]
 
         fear_fig.update_geos(fear_geos)
         anger_fig.update_geos(anger_geos)
