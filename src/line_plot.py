@@ -92,13 +92,13 @@ def add_annotations(fig):
     for i, date in enumerate(important_dates_dict):
         curr_date_row = global_df.loc[date]
         fear = curr_date_row['fear_intensity']
-        angle = 20
+        angle = 0
         y_offset = -50
         if (i % 2 == 0):
             y_offset=75
             angle=-20
         fig.add_annotation(x=date, y=fear,
-            ayref="pixel",
+            #ayref="pixel",
             text=important_dates_dict[date],
             showarrow=True,
             arrowhead=1,
