@@ -11,6 +11,9 @@ import calendar
 import json
 import pandas as pd
 
+from stacked_graph import plot_stacked_country_emotions, plot_stacked_global_emotions
+from cumulative_graph import plot_cumulative_country_emotions, plot_cumulative_global_emotions
+
 
 app = dash.Dash(
     __name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME]
@@ -245,6 +248,14 @@ app.layout = html.Div(
             },
         ),
         dcc.Graph(id="emotion-lines"),
+        # html.Button('Reset to Global Summarizaton', id='reset-button-sum', n_clicks=0, disabled=True, style ={'background-color': '#fadfaa', 'color':'black', 'font-size':'20px'}),
+        html.Div([
+        dcc.Input(id='country-name-input', type='text', placeholder='Enter country name...'),
+        html.Button('Enter', id='enter-button', n_clicks=0, style={'margin-left': '10px'}),
+        # html.Button('Reset to Global Summarization', id='reset-summarization', n_clicks=0, style={'margin-left': '10px'})
+    ]),
+    dcc.Graph(id='stacked-emotions'),
+    dcc.Graph(id='cumulative-emotions')
     ],
     style={"text-align": "center"},
 )
@@ -494,6 +505,42 @@ def update_big_map(
         reset_happiness_clicks,
         reset_sadness_clicks,
     )
+@app.callback(
+    [
+        Output('stacked-emotions', 'figure'),
+        Output('cumulative-emotions', 'figure'),
+        Output('country-name-input', 'value')
+        # Output("reset-summarization", "disabled"),
+        # Output("reset-summarization", "n_clicks")
+    ]
+    ,
+    [
+        Input("enter-button", "n_clicks"),
+        # Input("reset-summarization", "n_clicks")
+    ],
+    [
+        State('country-name-input', 'value'),
+        # State("reset-summarization", "disabled")
+    ],
+)
+def update_summarization(n_clicks, countryName):
+    fig_stacked = go.Figure()
+    fig_cumulative = go.Figure()
+    
+    if n_clicks > 0 and len(countryName.strip())>0:
+        countryName = countryName.strip()
+        countryName = countryName[0].upper() + countryName[1:]
+        
+        fig_stacked = plot_stacked_global_emotions() if countryName is None else plot_stacked_country_emotions(countryName)
+        fig_cumulative = plot_cumulative_global_emotions() if countryName is None else plot_cumulative_country_emotions(countryName)
+        countryName = ""
+        return fig_stacked, fig_cumulative, countryName
+    else:
+        countryName = ""
+        fig_stacked = plot_stacked_global_emotions()
+        fig_cumulative = plot_cumulative_global_emotions()
+        return fig_stacked, fig_cumulative, countryName
+    
 
 
 # Define the callback to display the consent modal on page load
