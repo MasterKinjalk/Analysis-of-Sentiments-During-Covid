@@ -15,6 +15,7 @@ from cumulative_graph import (
     plot_cumulative_country_emotions,
     plot_cumulative_global_emotions,
 )
+from datetime import datetime
 
 
 app = dash.Dash(
@@ -194,6 +195,7 @@ app.layout = html.Div(
                 ),
             ]
         ),
+        dcc.Store(id="updated-date"),
         html.Div(
             [
                 html.Button(
@@ -238,7 +240,7 @@ app.layout = html.Div(
                 ),
             ]
         ),
-        dcc.Graph(id="big-map"),
+        dcc.Graph(id="big-map", style={"height": "800px", "width": "100%"}),
         html.Button(
             "Reset to Global",
             id="reset-button",
@@ -406,7 +408,8 @@ def update_maps_and_lines(
     button_disabled,
 ):
     selected_date = dates[selected_date_index]
-
+    print("first map data:")
+    print(selected_date)
     # Identify which input triggered the callback
 
     ctx = callback_context
@@ -499,6 +502,7 @@ def update_maps_and_lines(
     Output("sadness-button", "n_clicks"),
     [
         Input(PlaybackSliderAIO.ids.slider("date-slider"), "value"),
+        # Input("updated-date", "data"),
         Input("fear-button", "n_clicks"),
         Input("anger-button", "n_clicks"),
         Input("happiness-button", "n_clicks"),
@@ -508,9 +512,17 @@ def update_maps_and_lines(
 def update_big_map(
     selected_date_index, fear_clicks, anger_clicks, happiness_clicks, sadness_clicks
 ):
+    global selected_emotion
 
     selected_date = dates[selected_date_index]
 
+    print("big map data:")
+    print(selected_date)
+    ctx = dash.callback_context
+    triggered_id = ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else None
+    # selected_date = datetime.strptime(selected_date, "%Y-%m-%d %H:%M:%S")
+    # print("updated data:")
+    # print(selected_date)
     emotion = None
     reset_fear_clicks = fear_clicks
     reset_anger_clicks = anger_clicks
@@ -518,21 +530,21 @@ def update_big_map(
     reset_sadness_clicks = sadness_clicks
 
     if fear_clicks > 0:
-        emotion = "fear_intensity"
+        selected_emotion = "fear_intensity"
         print("fear is clicked!!!")
-        fig = create_choropleth_map(selected_date, emotion)
+        # fig = create_choropleth_map(selected_date, emotion)
         reset_fear_clicks = 0
     elif anger_clicks > 0:
-        emotion = "anger_intensity"
-        fig = create_choropleth_map(selected_date, emotion)
+        selected_emotion = "anger_intensity"
+        # fig = create_choropleth_map(selected_date, emotion)
         reset_anger_clicks = 0
     elif happiness_clicks > 0:
-        emotion = "happiness_intensity"
-        fig = create_choropleth_map(selected_date, emotion)
+        selected_emotion = "happiness_intensity"
+        # fig = create_choropleth_map(selected_date, emotion)
         reset_happiness_clicks = 0
     elif sadness_clicks > 0:
-        emotion = "sadness_intensity"
-        fig = create_choropleth_map(selected_date, emotion)
+        selected_emotion = "sadness_intensity"
+        # fig = create_choropleth_map(selected_date, emotion)
         reset_sadness_clicks = 0
 
     # if emotion:
@@ -540,9 +552,8 @@ def update_big_map(
     #     fig = create_choropleth_map(selected_date, emotion)
 
     else:
-
-        fig = go.Figure()
-
+        selected_emotion = "fear_intensity"
+    fig = create_choropleth_map(selected_date, selected_emotion)
     return (
         fig,
         reset_fear_clicks,
