@@ -30,8 +30,8 @@ country_df = preprocess_country_data(df_daily)
 def plot_stacked_global_emotions():
     fig_stacked = go.Figure()
     # with normalization
-    df_cumulative = global_df.cumsum(axis=1)
-    df_cumulative = df_cumulative.iloc[:, -4:]
+    # df_cumulative = global_df.cumsum(axis=1)
+    df_cumulative = global_df.iloc[:, -4:]
     
     # without normalization
     # df_cumulative = global_df.iloc[:, -4:]
@@ -69,7 +69,8 @@ def plot_stacked_country_emotions(country):
     title = 'Emotional Intensity over Time for ' + country
     
     # with normalization
-    df_cumulative = selected_country_df.cumsum(axis=1)
+    # df_cumulative = selected_country_df.cumsum(axis=1)
+    df_cumulative = selected_country_df
     
     # without normalization
     fig_stacked = go.Figure()
