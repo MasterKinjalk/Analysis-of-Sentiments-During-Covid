@@ -11,6 +11,10 @@ import calendar
 import json
 import pandas as pd
 
+from stacked_graph import plot_stacked_country_emotions, plot_stacked_global_emotions
+from cumulative_graph import plot_cumulative_country_emotions, plot_cumulative_global_emotions
+from datetime import datetime
+
 
 app = dash.Dash(
     __name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME]
@@ -163,7 +167,6 @@ app.layout = html.Div(
                         "font-size": "15px",
                     },
                 ),
-                dcc.Input(id="updated-date", type="hidden"),
             ]
         ),
         html.Div(
@@ -190,6 +193,7 @@ app.layout = html.Div(
                 ),
             ]
         ),
+        dcc.Store(id="updated-date"),
         html.Div(
             [
                 html.Button(
@@ -234,7 +238,7 @@ app.layout = html.Div(
                 ),
             ]
         ),
-        dcc.Graph(id="big-map"),
+        dcc.Graph(id="big-map",style={"height": "800px", "width": "100%"}),
         html.Button(
             "Reset to Global",
             id="reset-button",
@@ -247,6 +251,14 @@ app.layout = html.Div(
             },
         ),
         dcc.Graph(id="emotion-lines"),
+        # html.Button('Reset to Global Summarizaton', id='reset-button-sum', n_clicks=0, disabled=True, style ={'background-color': '#fadfaa', 'color':'black', 'font-size':'20px'}),
+        html.Div([
+        dcc.Input(id='country-name-input', type='text', placeholder='Enter country name...'),
+        html.Button('Enter', id='enter-button', n_clicks=0, style={'margin-left': '10px'}),
+        html.Button('Reset to Global Summarization', id='reset-summarization', n_clicks=0, style={'margin-left': '10px'})
+    ]),
+    dcc.Graph(id='stacked-emotions'),
+    dcc.Graph(id='cumulative-emotions')
     ],
     style={"text-align": "center"},
 )
@@ -338,7 +350,6 @@ def store_relayout_data(
         Output("emotion-lines", "figure"),
         Output("reset-button", "disabled"),
         Output("reset-button", "n_clicks"),
-        Output("updated-date", "value")
     ],
     [
         Input(PlaybackSliderAIO.ids.slider("date-slider"), "value"),
@@ -352,7 +363,7 @@ def store_relayout_data(
         Input("sadness-map", "relayoutData"),
         Input("map-relayout-data", "data"),
         Input("reset-button", "n_clicks"),
-        Input("updated-date", "value"),
+
     ],
     [
         State("fear-map", "figure"),
@@ -378,14 +389,11 @@ def update_maps_and_lines(
     anger_dict,
     happiness_dict,
     sadness_dict,
-    button_disabled,
-    date
+    button_disabled
 ):
     selected_date = dates[selected_date_index]
-    print("first date  ")
-    
+    print("first map data:")
     print(selected_date)
-
     # Identify which input triggered the callback
 
     ctx = callback_context
@@ -466,8 +474,7 @@ def update_maps_and_lines(
         sadness_fig,
         fig_lines,
         reset_disabled,
-        reset_n_clicks,
-        selected_date
+        reset_n_clicks
     )
 
 
@@ -478,23 +485,28 @@ def update_maps_and_lines(
     Output("happiness-button", "n_clicks"),
     Output("sadness-button", "n_clicks"),
     [
-        # Input(PlaybackSliderAIO.ids.slider("date-slider"), "value"),
-        Input("updated-date", "value"),
+        Input(PlaybackSliderAIO.ids.slider("date-slider"), "value"),
+        # Input("updated-date", "data"),
         Input("fear-button", "n_clicks"),
         Input("anger-button", "n_clicks"),
         Input("happiness-button", "n_clicks"),
         Input("sadness-button", "n_clicks"),
     ],
 )
-def update_big_map(
-    selected_date, fear_clicks, anger_clicks, happiness_clicks, sadness_clicks
-):
-    print("big map date")
-    print(selected_date)
 
+def update_big_map(
+    selected_date_index, fear_clicks, anger_clicks, happiness_clicks, sadness_clicks
+):
+    global selected_emotion
+
+    selected_date = dates[selected_date_index]
+    print("big map data:")
+    print(selected_date)
     ctx = dash.callback_context
     triggered_id = ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else None
-
+    # selected_date = datetime.strptime(selected_date, "%Y-%m-%d %H:%M:%S")
+    # print("updated data:")
+    # print(selected_date)
     emotion = None
     reset_fear_clicks = fear_clicks
     reset_anger_clicks = anger_clicks
@@ -502,22 +514,30 @@ def update_big_map(
     reset_sadness_clicks = sadness_clicks
 
     if fear_clicks > 0:
-        emotion = "fear_intensity"
+        selected_emotion = "fear_intensity"
         print("fear is clicked!!!")
-        fig = create_choropleth_map(selected_date, emotion)
+        # fig = create_choropleth_map(selected_date, emotion)
+        reset_fear_clicks = 0
     elif anger_clicks > 0:
-        emotion = "anger_intensity"
-        fig = create_choropleth_map(selected_date, emotion)
+        selected_emotion = "anger_intensity"
+        # fig = create_choropleth_map(selected_date, emotion)
+        reset_anger_clicks = 0
     elif happiness_clicks > 0:
-        emotion = "happiness_intensity"
-        fig = create_choropleth_map(selected_date, emotion)
+        selected_emotion = "happiness_intensity"
+        # fig = create_choropleth_map(selected_date, emotion)
+        reset_happiness_clicks = 0
     elif sadness_clicks > 0:
-        emotion = "sadness_intensity"
-        fig = create_choropleth_map(selected_date, emotion)
-    else:
-        fig = create_choropleth_map(selected_date, "fear_intensity")
+        selected_emotion = "sadness_intensity"
+        # fig = create_choropleth_map(selected_date, emotion)
+        reset_sadness_clicks = 0
 
-    reset_fear_clicks = 0
+    # if emotion:
+
+    #     fig = create_choropleth_map(selected_date, emotion)
+
+    else:
+        selected_emotion = "fear_intensity"
+    fig = create_choropleth_map(selected_date, selected_emotion)
     return (
         fig,
         reset_fear_clicks,
@@ -525,6 +545,48 @@ def update_big_map(
         reset_happiness_clicks,
         reset_sadness_clicks,
     )
+@app.callback(
+    [
+        Output('stacked-emotions', 'figure'),
+        Output('cumulative-emotions', 'figure'),
+        Output('country-name-input', 'value'),
+        Output("reset-summarization", "disabled"),
+        Output("reset-summarization", "n_clicks")
+    ]
+    ,
+    [
+        Input("enter-button", "n_clicks"),
+        Input("reset-summarization", "n_clicks")
+    ],
+    [
+        State('country-name-input', 'value'),
+        State("reset-summarization", "disabled")
+    ],
+)
+def update_summarization(n_clicks,n_clicks_sum, countryName, button_disabled):
+    fig_stacked = go.Figure()
+    fig_cumulative = go.Figure()
+    if n_clicks_sum>0:
+        countryName = ""
+        fig_stacked = plot_stacked_global_emotions()
+        fig_cumulative = plot_cumulative_global_emotions()
+        n_clicks_sum = 0
+        button_disabled = False
+        return fig_stacked, fig_cumulative, countryName, button_disabled, n_clicks_sum
+    if n_clicks > 0 and len(countryName.strip())>0:
+        countryName = countryName.strip()
+        countryName = countryName[0].upper() + countryName[1:]
+        
+        fig_stacked = plot_stacked_global_emotions() if countryName is None else plot_stacked_country_emotions(countryName)
+        fig_cumulative = plot_cumulative_global_emotions() if countryName is None else plot_cumulative_country_emotions(countryName)
+        countryName = ""
+        return fig_stacked, fig_cumulative, countryName, button_disabled, n_clicks_sum
+    else:
+        countryName = ""
+        fig_stacked = plot_stacked_global_emotions()
+        fig_cumulative = plot_cumulative_global_emotions()
+        return fig_stacked, fig_cumulative, countryName, button_disabled, n_clicks_sum
+    
 
 
 # Define the callback to display the consent modal on page load
