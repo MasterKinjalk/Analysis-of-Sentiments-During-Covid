@@ -8,11 +8,13 @@ from playback_slider_aio import PlaybackSliderAIO
 from line_plot import plot_global_emotions, plot_country_emotions, important_dates_dict
 import dash_bootstrap_components as dbc
 import calendar
-import json
 import pandas as pd
 
 from stacked_graph import plot_stacked_country_emotions, plot_stacked_global_emotions
-from cumulative_graph import plot_cumulative_country_emotions, plot_cumulative_global_emotions
+from cumulative_graph import (
+    plot_cumulative_country_emotions,
+    plot_cumulative_global_emotions,
+)
 
 
 app = dash.Dash(
@@ -250,13 +252,29 @@ app.layout = html.Div(
         ),
         dcc.Graph(id="emotion-lines"),
         # html.Button('Reset to Global Summarizaton', id='reset-button-sum', n_clicks=0, disabled=True, style ={'background-color': '#fadfaa', 'color':'black', 'font-size':'20px'}),
-        html.Div([
-        dcc.Input(id='country-name-input', type='text', placeholder='Enter country name...'),
-        html.Button('Enter', id='enter-button', n_clicks=0, style={'margin-left': '10px'}),
-        html.Button('Reset to Global Summarization', id='reset-summarization', n_clicks=0, style={'margin-left': '10px'})
-    ]),
-    dcc.Graph(id='stacked-emotions'),
-    dcc.Graph(id='cumulative-emotions')
+        html.Div(
+            [
+                dcc.Input(
+                    id="country-name-input",
+                    type="text",
+                    placeholder="Enter country name...",
+                ),
+                html.Button(
+                    "Enter",
+                    id="enter-button",
+                    n_clicks=0,
+                    style={"margin-left": "10px"},
+                ),
+                html.Button(
+                    "Reset to Global Summarization",
+                    id="reset-summarization",
+                    n_clicks=0,
+                    style={"margin-left": "10px"},
+                ),
+            ]
+        ),
+        dcc.Graph(id="stacked-emotions"),
+        dcc.Graph(id="cumulative-emotions"),
     ],
     style={"text-align": "center"},
 )
@@ -332,7 +350,6 @@ def store_relayout_data(
     ctx = dash.callback_context
     if not ctx.triggered:
         return existing_data
-    triggered_prop_id = ctx.triggered[0]["prop_id"]
     new_relayout_data = ctx.triggered[0]["value"]
     if new_relayout_data:
         return new_relayout_data
@@ -493,8 +510,6 @@ def update_big_map(
 ):
 
     selected_date = dates[selected_date_index]
-    ctx = dash.callback_context
-    triggered_id = ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else None
 
     emotion = None
     reset_fear_clicks = fear_clicks
@@ -535,40 +550,43 @@ def update_big_map(
         reset_happiness_clicks,
         reset_sadness_clicks,
     )
+
+
 @app.callback(
     [
-        Output('stacked-emotions', 'figure'),
-        Output('cumulative-emotions', 'figure'),
-        Output('country-name-input', 'value'),
+        Output("stacked-emotions", "figure"),
+        Output("cumulative-emotions", "figure"),
+        Output("country-name-input", "value"),
         Output("reset-summarization", "disabled"),
-        Output("reset-summarization", "n_clicks")
-    ]
-    ,
-    [
-        Input("enter-button", "n_clicks"),
-        Input("reset-summarization", "n_clicks")
+        Output("reset-summarization", "n_clicks"),
     ],
-    [
-        State('country-name-input', 'value'),
-        State("reset-summarization", "disabled")
-    ],
+    [Input("enter-button", "n_clicks"), Input("reset-summarization", "n_clicks")],
+    [State("country-name-input", "value"), State("reset-summarization", "disabled")],
 )
-def update_summarization(n_clicks,n_clicks_sum, countryName, button_disabled):
+def update_summarization(n_clicks, n_clicks_sum, countryName, button_disabled):
     fig_stacked = go.Figure()
     fig_cumulative = go.Figure()
-    if n_clicks_sum>0:
+    if n_clicks_sum > 0:
         countryName = ""
         fig_stacked = plot_stacked_global_emotions()
         fig_cumulative = plot_cumulative_global_emotions()
         n_clicks_sum = 0
         button_disabled = False
         return fig_stacked, fig_cumulative, countryName, button_disabled, n_clicks_sum
-    if n_clicks > 0 and len(countryName.strip())>0:
+    if n_clicks > 0 and len(countryName.strip()) > 0:
         countryName = countryName.strip()
         countryName = countryName[0].upper() + countryName[1:]
-        
-        fig_stacked = plot_stacked_global_emotions() if countryName is None else plot_stacked_country_emotions(countryName)
-        fig_cumulative = plot_cumulative_global_emotions() if countryName is None else plot_cumulative_country_emotions(countryName)
+
+        fig_stacked = (
+            plot_stacked_global_emotions()
+            if countryName is None
+            else plot_stacked_country_emotions(countryName)
+        )
+        fig_cumulative = (
+            plot_cumulative_global_emotions()
+            if countryName is None
+            else plot_cumulative_country_emotions(countryName)
+        )
         countryName = ""
         return fig_stacked, fig_cumulative, countryName, button_disabled, n_clicks_sum
     else:
@@ -576,7 +594,6 @@ def update_summarization(n_clicks,n_clicks_sum, countryName, button_disabled):
         fig_stacked = plot_stacked_global_emotions()
         fig_cumulative = plot_cumulative_global_emotions()
         return fig_stacked, fig_cumulative, countryName, button_disabled, n_clicks_sum
-    
 
 
 # Define the callback to display the consent modal on page load
