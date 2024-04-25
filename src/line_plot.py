@@ -128,8 +128,13 @@ dates_UK = {
     "2020-06-01": "Schools repoen",
     "2020-09-14": "Rule of 6",
 }
+dates_India = {"2020-08-15": "Indian Independence Day"}
 
-country_dates = {"United States": dates_US, "United Kingdom": dates_UK}
+country_dates = {
+    "United States": dates_US,
+    "United Kingdom": dates_UK,
+    "India": dates_India,
+}
 
 
 def add_annotations(fig):
