@@ -83,12 +83,14 @@ def create_choropleth_map(date, emotion):
     fig.update_layout(
         title_text=f'{emotion.replace("_", " ").capitalize()} for {date.date()}',
         geo=dict(
-            showframe=True, showcoastlines=False, projection_type="equirectangular"
+            showframe=True,
+            showcoastlines=False,
+            projection_type="equirectangular",
+            bgcolor="rgba(0,0,0,0)",
         ),
         autosize=True,
-        # paper_bgcolor = "#f0f0f0", #"rgb(119,136,153)",
-        # plot_bgcolor = "#f0f0f0" #"rgb(119,136,153)"
-        
+        paper_bgcolor="rgba(0,0,0,0)",
+        # plot_bgcolor="rgba(0,0,0,0)",
     )
 
     return fig
