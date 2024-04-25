@@ -49,12 +49,12 @@ for i, date in enumerate(dates):
         curr_label = calendar.month_name[date.month]
         curr_style = {"display": "block"}
 
-    elif date.strftime("%Y-%m-%d") in important_dates_dict:
-        curr_label = important_dates_dict[date.strftime("%Y-%m-%d")]
-        curr_style = {
-            "display": "block",
-            "transform": "rotate(-45deg) translateY(-3rem)",
-        }
+    # elif date.strftime("%Y-%m-%d") in important_dates_dict:
+    #     curr_label = important_dates_dict[date.strftime("%Y-%m-%d")]
+    #     curr_style = {
+    #         "display": "block",
+    #         "transform": "rotate(-45deg) translateY(-3rem)",
+    #     }
 
     date_marks[i] = {"label": curr_label, "style": curr_style}
 
