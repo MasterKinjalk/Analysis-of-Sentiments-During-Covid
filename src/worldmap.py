@@ -86,6 +86,9 @@ def create_choropleth_map(date, emotion):
             showframe=True, showcoastlines=False, projection_type="equirectangular"
         ),
         autosize=True,
+        # paper_bgcolor = "#f0f0f0", #"rgb(119,136,153)",
+        # plot_bgcolor = "#f0f0f0" #"rgb(119,136,153)"
+        
     )
 
     return fig
