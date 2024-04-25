@@ -260,7 +260,9 @@ app.layout = html.Div(
     dcc.Graph(id='stacked-emotions'),
     dcc.Graph(id='cumulative-emotions')
     ],
+    # style={"text-align": "center", "backgroundColor": "#f0f0f0"},
     style={"text-align": "center"},
+    
 )
 
 
@@ -498,10 +500,14 @@ def update_big_map(
     selected_date_index, fear_clicks, anger_clicks, happiness_clicks, sadness_clicks
 ):
     global selected_emotion
+    global prev_fear_clicks
+    global prev_happiness_clicks
+    global prev_sadness_clicks
+    global prev_anger_clicks
 
     selected_date = dates[selected_date_index]
-    print("big map data:")
-    print(selected_date)
+    # print("big map data:")
+    # print(selected_date)
     ctx = dash.callback_context
     triggered_id = ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else None
     # selected_date = datetime.strptime(selected_date, "%Y-%m-%d %H:%M:%S")
@@ -513,37 +519,44 @@ def update_big_map(
     reset_happiness_clicks = happiness_clicks
     reset_sadness_clicks = sadness_clicks
 
-    if fear_clicks > 0:
+    if fear_clicks == 0 & sadness_clicks == 0 & happiness_clicks == 0 & anger_clicks == 0:
+        selected_emotion = "fear_intensity"
+        prev_fear_clicks = 0
+        prev_anger_clicks = 0
+        prev_happiness_clicks = 0
+        prev_sadness_clicks = 0
+    elif fear_clicks > prev_fear_clicks:
         selected_emotion = "fear_intensity"
         print("fear is clicked!!!")
+        print(fear_clicks)
         # fig = create_choropleth_map(selected_date, emotion)
-        reset_fear_clicks = 0
-    elif anger_clicks > 0:
+        prev_fear_clicks = fear_clicks
+    elif anger_clicks > prev_anger_clicks:
         selected_emotion = "anger_intensity"
         # fig = create_choropleth_map(selected_date, emotion)
-        reset_anger_clicks = 0
-    elif happiness_clicks > 0:
+        prev_anger_clicks = anger_clicks
+    elif happiness_clicks > prev_happiness_clicks:
         selected_emotion = "happiness_intensity"
         # fig = create_choropleth_map(selected_date, emotion)
-        reset_happiness_clicks = 0
-    elif sadness_clicks > 0:
+        prev_happiness_clicks = happiness_clicks
+    elif sadness_clicks > prev_sadness_clicks:
         selected_emotion = "sadness_intensity"
         # fig = create_choropleth_map(selected_date, emotion)
-        reset_sadness_clicks = 0
+        prev_sadness_clicks = sadness_clicks
 
     # if emotion:
 
     #     fig = create_choropleth_map(selected_date, emotion)
 
-    else:
-        selected_emotion = "fear_intensity"
+    
     fig = create_choropleth_map(selected_date, selected_emotion)
+    #new comment 
     return (
         fig,
-        reset_fear_clicks,
-        reset_anger_clicks,
-        reset_happiness_clicks,
-        reset_sadness_clicks,
+        fear_clicks,
+        anger_clicks,
+        happiness_clicks,
+        sadness_clicks,
     )
 @app.callback(
     [
