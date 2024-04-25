@@ -22,6 +22,7 @@ app = dash.Dash(
     __name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME]
 )
 
+country = None
 
 server = app.server
 
@@ -50,12 +51,12 @@ for i, date in enumerate(dates):
         curr_label = calendar.month_name[date.month]
         curr_style = {"display": "block"}
 
-    elif date.strftime("%Y-%m-%d") in important_dates_dict:
-        curr_label = important_dates_dict[date.strftime("%Y-%m-%d")]
-        curr_style = {
-            "display": "block",
-            "transform": "rotate(-45deg) translateY(-3rem)",
-        }
+    # elif date.strftime("%Y-%m-%d") in important_dates_dict:
+    #     curr_label = important_dates_dict[date.strftime("%Y-%m-%d")]
+    #     curr_style = {
+    #         "display": "block",
+    #         "transform": "rotate(-45deg) translateY(-3rem)",
+    #     }
 
     date_marks[i] = {"label": curr_label, "style": curr_style}
 
@@ -151,6 +152,7 @@ app.layout = html.Div(
         ),
         html.Pre(id="click-data"),
         dcc.Store(id="map-relayout-data"),
+        
         html.Div(
             [
                 dcc.Input(
@@ -368,6 +370,10 @@ def store_relayout_data(
         Output("emotion-lines", "figure"),
         Output("reset-button", "disabled"),
         Output("reset-button", "n_clicks"),
+        Output("fear-map", "clickData"),
+        Output("anger-map", "clickData"),
+        Output("happiness-map", "clickData"),
+        Output("sadness-map", "clickData"),
     ],
     [
         Input(PlaybackSliderAIO.ids.slider("date-slider"), "value"),
@@ -408,6 +414,8 @@ def update_maps_and_lines(
     sadness_dict,
     button_disabled,
 ):
+    global country
+    
     selected_date = dates[selected_date_index]
     print("first map data:")
     print(selected_date)
@@ -415,9 +423,13 @@ def update_maps_and_lines(
 
     ctx = callback_context
     triggered_id = ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else None
-    country = None
+    if (triggered_id and triggered_id == 'reset-button'):
+        country = None
+    #country = None
     relayout_data = None
     triggered_input = ctx.triggered[0]["prop_id"]
+    print('Relay out')
+    print(ctx.triggered)
 
     # Logic to check which map triggered the zoom and to extract that relayoutData
     # relayout_data = None
@@ -430,13 +442,17 @@ def update_maps_and_lines(
             relayout_data = triggered_map_data
 
     # Check which map was clicked based on the triggered input
-    if triggered_id == "fear-map" and fear_clickData:
+    # print(fear_clickData)
+    # print(anger_clickData)
+    # print(happiness_clickData)
+    # print(country_cli)
+    if fear_clickData:
         country = fear_clickData["points"][0]["location"]
-    elif triggered_id == "anger-map" and anger_clickData:
+    elif anger_clickData:
         country = anger_clickData["points"][0]["location"]
-    elif triggered_id == "happiness-map" and happiness_clickData:
+    elif happiness_clickData:
         country = happiness_clickData["points"][0]["location"]
-    elif triggered_id == "sadness-map" and sadness_clickData:
+    elif sadness_clickData:
         country = sadness_clickData["points"][0]["location"]
 
     # Update the line plot based on the selected country or global data
@@ -488,6 +504,11 @@ def update_maps_and_lines(
         fig_lines,
         reset_disabled,
         reset_n_clicks,
+        None,
+        None,
+        None,
+        None
+
     )
 
 
