@@ -518,8 +518,6 @@ def update_big_map(
 
     print("big map data:")
     print(selected_date)
-    ctx = dash.callback_context
-    triggered_id = ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else None
     # selected_date = datetime.strptime(selected_date, "%Y-%m-%d %H:%M:%S")
     # print("updated data:")
     # print(selected_date)
