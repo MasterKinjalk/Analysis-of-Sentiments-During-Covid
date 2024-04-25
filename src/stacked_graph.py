@@ -62,7 +62,7 @@ def plot_stacked_global_emotions():
 
     # Enhance the layout
     fig_stacked.update_layout(
-        title="Flow of emotions",
+        title="Summary of Emotion Flow",
         xaxis=dict(
             title="Time (Days)",
             mirror=True,
@@ -77,7 +77,8 @@ def plot_stacked_global_emotions():
             showline=True,
             linecolor="#000",
         ),
-        plot_bgcolor="white",
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0, 0, 0, 0)",
         hovermode="x unified",
         legend=dict(
             title="Emotions",
@@ -136,7 +137,8 @@ def plot_stacked_country_emotions(country):
             showline=True,
             linecolor="#000",
         ),
-        plot_bgcolor="white",
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0, 0, 0, 0)",
         hovermode="x unified",
         legend=dict(
             title="Emotions",

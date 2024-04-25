@@ -41,8 +41,6 @@ date_marks = {}
 # important_dates_dict = {'January10': 'Novel coronavirus announced', 'March11': 'WHO announces Pandemic', 'September23': 'New strain of Covid', 'October2': 'Trump infected'}
 # important_dates_dict = {'2020-02-11': 'WHO names Covid-19','2020-03-11': 'WHO declares pandemic', '2020-04-02': 'Worldwide cases at 1 million', '2020-04-08': 'Wuhan reopens', '2020-04-13': 'US ceases WHO funding','2020-04-17': 'First Moderna trials', '2020-04-24': 'ACT-A announced',  '2020-09-23': 'New strain of Covid', '2020-09-28': 'Global deaths at 1 million', '2020-10-02': 'Trump infected'}
 
-print(type(dates[0]))
-
 for i, date in enumerate(dates):
 
     curr_label = ""
@@ -69,7 +67,9 @@ app.layout = html.Div(
             [
                 dbc.Modal(
                     [
-                        dbc.ModalHeader(html.H4("Disclaimer")),
+                        dbc.ModalHeader(
+                            dbc.ModalTitle("Disclaimer"), close_button=False
+                        ),
                         dbc.ModalBody(
                             [
                                 html.H5(
@@ -116,6 +116,8 @@ app.layout = html.Div(
                     size="xl",
                     centered=True,
                     is_open=True,
+                    keyboard=False,
+                    backdrop="static",
                 ),
                 html.H1(
                     "Visualizing Global Emotions for 2020 Through Covid-19 Tweets",
@@ -152,7 +154,6 @@ app.layout = html.Div(
         ),
         html.Pre(id="click-data"),
         dcc.Store(id="map-relayout-data"),
-        
         html.Div(
             [
                 dcc.Input(
@@ -280,8 +281,8 @@ app.layout = html.Div(
         dcc.Graph(id="stacked-emotions"),
         dcc.Graph(id="cumulative-emotions"),
     ],
-    # style={"text-align": "center", "backgroundColor": "#f0f0f0"},
-    style={"text-align": "center"},
+    style={"text-align": "center", "backgroundColor": "#f0f0f0"},
+    # style={"text-align": "center"},
 )
 
 
@@ -326,13 +327,11 @@ def zoom_country(fig, country, geo_path):
 def search_country(
     n_clicks, country, fear_dict, anger_dict, happiness_dict, sadness_dict
 ):
-    print("Hi")
+
     fear_fig = go.Figure(fear_dict)
     anger_fig = go.Figure(anger_dict)
     happiness_fig = go.Figure(happiness_dict)
     sadness_fig = go.Figure(sadness_dict)
-    # print(type(fear_fig))
-    print(fear_dict["layout"]["geo"])
     zoom_country(fear_fig, country, "countries.csv")
     zoom_country(anger_fig, country, "countries.csv")
     zoom_country(happiness_fig, country, "countries.csv")
@@ -415,21 +414,18 @@ def update_maps_and_lines(
     button_disabled,
 ):
     global country
-    
+
     selected_date = dates[selected_date_index]
-    print("first map data:")
-    print(selected_date)
+
     # Identify which input triggered the callback
 
     ctx = callback_context
     triggered_id = ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else None
-    if (triggered_id and triggered_id == 'reset-button'):
+    if triggered_id and triggered_id == "reset-button":
         country = None
-    #country = None
+    # country = None
     relayout_data = None
     triggered_input = ctx.triggered[0]["prop_id"]
-    print('Relay out')
-    print(ctx.triggered)
 
     # Logic to check which map triggered the zoom and to extract that relayoutData
     # relayout_data = None
@@ -442,10 +438,6 @@ def update_maps_and_lines(
             relayout_data = triggered_map_data
 
     # Check which map was clicked based on the triggered input
-    # print(fear_clickData)
-    # print(anger_clickData)
-    # print(happiness_clickData)
-    # print(country_cli)
     if fear_clickData:
         country = fear_clickData["points"][0]["location"]
     elif anger_clickData:
@@ -507,8 +499,7 @@ def update_maps_and_lines(
         None,
         None,
         None,
-        None
-
+        None,
     )
 
 
@@ -551,21 +542,15 @@ def update_big_map(
         prev_sadness_clicks = 0
     elif fear_clicks > prev_fear_clicks:
         selected_emotion = "fear_intensity"
-        print("fear is clicked!!!")
-        print(fear_clicks)
-
         prev_fear_clicks = fear_clicks
     elif anger_clicks > prev_anger_clicks:
         selected_emotion = "anger_intensity"
-
         prev_anger_clicks = anger_clicks
     elif happiness_clicks > prev_happiness_clicks:
         selected_emotion = "happiness_intensity"
-
         prev_happiness_clicks = happiness_clicks
     elif sadness_clicks > prev_sadness_clicks:
         selected_emotion = "sadness_intensity"
-
         prev_sadness_clicks = sadness_clicks
 
     fig = create_choropleth_map(selected_date, selected_emotion)
@@ -637,4 +622,4 @@ def toggle_modal(n1, is_open):
 
 if __name__ == "__main__":
 
-    app.run_server(debug=True)
+    app.run_server(debug=False)

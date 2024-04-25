@@ -61,14 +61,38 @@ def plot_cumulative_global_emotions():
                 line=dict(width=0.5),
                 fill="tonexty",
                 fillcolor=emotion_colors.get(col, "rgba(0,0,0,0.4)"),
+                hoverinfo="x+y",
+                hoveron="points+fills",
             )
         )
 
     fig_cumulative.update_layout(
         title="Cumulative Emotional Intensity Over Time",
-        xaxis_title="Time (Days)",
-        yaxis_title="Cumulative Emotion Intensity",
-        plot_bgcolor="white",
+        xaxis=dict(
+            title="Time (Days)",
+            mirror=True,
+            ticks="outside",
+            showline=True,
+            linecolor="#000",
+        ),
+        yaxis=dict(
+            title="Cumulative Emotion Intensity",
+            mirror=True,
+            ticks="outside",
+            showline=True,
+            linecolor="#000",
+        ),
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0, 0, 0, 0)",
+        hovermode="x unified",
+        legend=dict(
+            title="Emotions",
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1,
+        ),
     )
 
     return fig_cumulative
@@ -80,7 +104,6 @@ def plot_cumulative_country_emotions(country):
     selected_country_df = country_df_cum[
         country_df_cum["country/region"] == country
     ].drop(columns="country/region")
-    title = "Emotional Intensity over Time for " + country
 
     fig_cumulative = go.Figure()
 
@@ -98,14 +121,38 @@ def plot_cumulative_country_emotions(country):
                 line=dict(width=0.5),
                 fill="tonexty",
                 fillcolor=emotion_colors.get(col, "rgba(0,0,0,0.4)"),
+                hoverinfo="x+y",
+                hoveron="points+fills",
             )
         )
 
     fig_cumulative.update_layout(
-        title=title,
-        xaxis_title="Time (Days)",
-        yaxis_title="Cumulative Emotion Intensity",
-        plot_bgcolor="white",
+        title="Cumulative Emotional Intensity Over Time " + country,
+        xaxis=dict(
+            title="Time (Days)",
+            mirror=True,
+            ticks="outside",
+            showline=True,
+            linecolor="#000",
+        ),
+        yaxis=dict(
+            title="Cumulative Emotion Intensity",
+            mirror=True,
+            ticks="outside",
+            showline=True,
+            linecolor="#000",
+        ),
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0, 0, 0, 0)",
+        hovermode="x unified",
+        legend=dict(
+            title="Emotions",
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1,
+        ),
     )
 
     return fig_cumulative
