@@ -243,6 +243,17 @@ app.layout = html.Div(
                 ),
             ]
         ),
+        PlaybackSliderAIO(
+            aio_id="date-slider-two",
+            slider_props={
+                "min": 0,
+                "max": len(dates) - 1,
+                "value": 0,
+                "step": 1,
+                "marks": date_marks,
+            },
+            button_props={"className": "float-left"},
+        ),
         dcc.Graph(id="big-map", style={"height": "800px", "width": "100%"}),
         html.Button(
             "Reset to Global",
@@ -510,7 +521,7 @@ def update_maps_and_lines(
     Output("happiness-button", "n_clicks"),
     Output("sadness-button", "n_clicks"),
     [
-        Input(PlaybackSliderAIO.ids.slider("date-slider"), "value"),
+        Input(PlaybackSliderAIO.ids.slider("date-slider-two"), "value"),
         Input("fear-button", "n_clicks"),
         Input("anger-button", "n_clicks"),
         Input("happiness-button", "n_clicks"),
@@ -622,4 +633,4 @@ def toggle_modal(n1, is_open):
 
 if __name__ == "__main__":
 
-    app.run_server(debug=False)
+    app.run_server(debug=True)
