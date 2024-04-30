@@ -1,0 +1,9 @@
+Kevin(kevindl2):
+        Wrote code for searching for countries
+	Added annotations 
+Avni(avnim2):
+        Wrote code for large single emotion map
+Kinjalk(kinjalk2):
+        Wrote code for four chloropleth sentiment maps
+Abhishek(augale2):
+        Wrote code for stacked line plots
